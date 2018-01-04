@@ -28,26 +28,27 @@ with serial.Serial('/dev/ttyUSB0', 9600, timeout=1) as ser:
     while cam_quit == 0:
 
         # Read Video Stream
-        im = vid.read()[1]
-        imres = im
-        width = 640
-        height = 480
+        #im = vid.read()[1]
+        #imres = im
+        #width = 640
+        #height = 480
 
         # Read Image File
-        #im = cv2.imread('/home/pi/Pictures/Astrophotography/1.jpg')
+        im = cv2.imread('/home/pi/Pictures/Astrophotography/6.jpg')
+        imres = im
         #imres = cv2.resize(im,None,fx=0.1, fy=0.1, interpolation = cv2.INTER_CUBIC)
-        #height, width, channels = imres.shape
+        height, width, channels = imres.shape
 		
-		# Define image slew target - right now, just middle of image
+	# Define image slew target - right now, just middle of image
         xmid = int(width/2)
         ymid = int(height/2)
     
-		# Gray, get thresholds, get contours
+	# Gray, get thresholds, get contours
         imgray = cv2.cvtColor(imres,cv2.COLOR_BGR2GRAY)
         ret,thresh = cv2.threshold(imgray,dyn_th,255,0) 
         im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
         
-		# find number of objects (contours) identified with current threshold settings
+	# find number of objects (contours) identified with current threshold settings
         objects_cnt = len(contours)
         
         # Sort contours by size.  Creates an index array to reference contours by
@@ -95,85 +96,85 @@ with serial.Serial('/dev/ttyUSB0', 9600, timeout=1) as ser:
 
             # Control telescope to align the 2 points
 			
-			if auto_slew == 1;
-				# First determine the slew rate based on the distance, and send command
-				# 2 thresholds for slewing at 3 different rates (2, 3, 4)
-				x_in_23 = abs(slew_dist_x) < slew_th23
-				y_in_23 = abs(slew_dist_y) < slew_th23
-				x_in_34 = abs(slew_dist_x) < slew_th34
-				y_in_34 = abs(slew_dist_y) < slew_th34
-				
-				# only change the rates if both X and Y are within the thresholds - slew rate is same for both axis
-				if x_in_23 and y_in_23:
-					slew_speed = 2
-				elif x_in_34 and y_in_34:
-					slew_speed = 3
-				else:
-					slew_speed = 4
-
-				# Send slew rate command to telescope
-				if slew_speed != slew_speed_z:  
-					command = ':Q#'
-					ser.write(command.encode('ascii'))
-					command = ':Sw'+str(slew_speed)
-					ser.write(command.encode('ascii'))
-					slew_speed_z = slew_speed         
-
-				# Determine slew directions - Move north, south, east, west
-				if slew_dist_x < 0:
-					xcommand = ':Mw#'
-				elif slew_dist_x > 0:
-					xcommand = ':Me#'
-				else:
-					xcommand = xcommand_z.replace("M","Q")
-					
-				if slew_dist_y < 0:
-					ycommand = ':Mn#'
-				elif slew_dist_y > 0:
-					ycommand = ':Ms#'
-				else:
-					ycommand = ycommand_z.replace("M","Q")
-
-				# Send commands based on the distances and directions
-				# Stop sending commands on 1 axis until the other axis is within the slew range
-				# since the axis have to share the same slew rate
+            if auto_slew == 1:
+                # First determine the slew rate based on the distance, and send command
+                # 2 thresholds for slewing at 3 different rates (2, 3, 4)
+                x_in_23 = abs(slew_dist_x) < slew_th23
+                y_in_23 = abs(slew_dist_y) < slew_th23
+                x_in_34 = abs(slew_dist_x) < slew_th34
+                y_in_34 = abs(slew_dist_y) < slew_th34
                 
-				if xcommand_z != xcommand:
-					if slew_speed == 4 and not x_in_34:
-						ser.write(xcommand.encode('ascii'))
-					else:
-						xcommand = xcommand_z.replace("M","Q")
-						ser.write(xcommand.encode('ascii'))						
-					
-					if slew_speed == 3 and not x_in_23:
-						ser.write(xcommand.encode('ascii'))  
-					else:
-						xcommand = xcommand_z.replace("M","Q")
-						ser.write(xcommand.encode('ascii'))
-						
-					if slew_speed == 2:
-						ser.write(xcommand.encode('ascii'))
-					
-					xcommand_z = xcommand
-					
-				if ycommand_z != ycommand:
-					if slew_speed == 4 and not y_in_34:
-						ser.write(ycommand.encode('ascii'))
-					else:
-						ycommand = ycommand_z.replace("M","Q")
-						ser.write(ycommand.encode('ascii'))
-					
-					if slew_speed == 3 and not y_in_23:
-						ser.write(ycommand.encode('ascii'))
-					else:
-						ycommand = ycommand_z.replace("M","Q")
-						ser.write(ycommand.encode('ascii'))
+                # only change the rates if both X and Y are within the thresholds - slew rate is same for both axis
+                if x_in_23 and y_in_23:
+                    slew_speed = 2
+                elif x_in_34 and y_in_34:
+                    slew_speed = 3
+                else:
+                    slew_speed = 4
 
-					if slew_speed == 2:
-						ser.write(ycommand.encode('ascii'))
-					
-					ycommand_z = ycommand
-        
+                # Send slew rate command to telescope
+                if slew_speed != slew_speed_z:  
+                    command = ':Q#'
+                    ser.write(command.encode('ascii'))
+                    command = ':Sw'+str(slew_speed)
+                    ser.write(command.encode('ascii'))
+                    slew_speed_z = slew_speed         
+
+                # Determine slew directions - Move north, south, east, west
+                if slew_dist_x < 0:
+                    xcommand = ':Mw#'
+                elif slew_dist_x > 0:
+                    xcommand = ':Me#'
+                else:
+                    xcommand = xcommand_z.replace("M","Q")
+                        
+                if slew_dist_y < 0:
+                    ycommand = ':Mn#'
+                elif slew_dist_y > 0:
+                    ycommand = ':Ms#'
+                else:
+                    ycommand = ycommand_z.replace("M","Q")
+
+                # Send commands based on the distances and directions
+                # Stop sending commands on 1 axis until the other axis is within the slew range
+                # since the axis have to share the same slew rate
+
+                if xcommand_z != xcommand:
+                    if slew_speed == 4 and not x_in_34:
+                        ser.write(xcommand.encode('ascii'))
+                    else:
+                        xcommand = xcommand_z.replace("M","Q")
+                        ser.write(xcommand.encode('ascii'))						
+                    
+                    if slew_speed == 3 and not x_in_23:
+                        ser.write(xcommand.encode('ascii'))  
+                    else:
+                        xcommand = xcommand_z.replace("M","Q")
+                        ser.write(xcommand.encode('ascii'))
+                            
+                    if slew_speed == 2:
+                        ser.write(xcommand.encode('ascii'))
+                    
+                    xcommand_z = xcommand
+                        
+                if ycommand_z != ycommand:
+                    if slew_speed == 4 and not y_in_34:
+                        ser.write(ycommand.encode('ascii'))
+                    else:
+                        ycommand = ycommand_z.replace("M","Q")
+                        ser.write(ycommand.encode('ascii'))
+                    
+                    if slew_speed == 3 and not y_in_23:
+                        ser.write(ycommand.encode('ascii'))
+                    else:
+                        ycommand = ycommand_z.replace("M","Q")
+                        ser.write(ycommand.encode('ascii'))
+
+                    if slew_speed == 2:
+                        ser.write(ycommand.encode('ascii'))
+                    
+                    ycommand_z = ycommand
+
         # Draw reference text
         cv2.putText(imres,("Objects: "+str(objects_cnt)),(1,20),font,0.5,(0,0,0),2,cv2.LINE_AA)
         cv2.putText(imres,("Objects: "+str(objects_cnt)),(1,20),font,0.5,(200,200,200),1,cv2.LINE_AA)
@@ -185,7 +186,7 @@ with serial.Serial('/dev/ttyUSB0', 9600, timeout=1) as ser:
         if (objects_cnt < 100):
             cv2.drawContours(imres, contours, -1, (0,255,0), 3)
 			
-		# Display the image and contours
+        # Display the image and contours
         cv2.imshow("Object Tracker",imres) 
 		
         # Poll the keyboard. If 'q' is pressed, exit the main loop.
@@ -206,8 +207,8 @@ with serial.Serial('/dev/ttyUSB0', 9600, timeout=1) as ser:
                 dyn_th_state = 1
             if (dyn_th < 126):
                 dyn_th = dyn_th + 1   
-        elif key == ord("q"):
-			# Quit
+        elif key == 27: #Escape Key
+                # Quit
             cam_quit = 1
             command = ':Q#'
             ser.write(command.encode('ascii'))
@@ -259,6 +260,9 @@ with serial.Serial('/dev/ttyUSB0', 9600, timeout=1) as ser:
             command = ':Mn#'
             ser.write(command.encode('ascii'))
             auto_slew = 0
+        elif key == ord("p"):
+            # save image file
+            cv2.imwrite('capture.jpg', imres)
 
         
 # Close all windows and close the PiCamera video stream.
