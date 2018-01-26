@@ -136,9 +136,9 @@ class Mount:
 		pos = sendCommand(command, 'string')
 			
 		# convert DD:MM:SS response to just degrees 
-		az_deg = int(az[1]+az[2])
-		az_min = int(az[3]+az[4])
-		az_sec = int(az[6]+az[7])
-		az_degrees = float(az_deg) + float(az_min)/60 + float(az_sec)/3600
+		deg = int(az[1]+az[2])
+		min = int(az[3]+az[4])
+		sec = int(az[6]+az[7])
+		degrees = float(az_deg) + float(az_min)/60 + float(az_sec)/3600
 
-		return az_degrees_z
+		return degrees

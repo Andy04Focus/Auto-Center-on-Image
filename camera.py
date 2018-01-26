@@ -12,6 +12,7 @@ class Camera():
 		self.livefName = "temp.mjpg"
 		self.camFolder = SessionName + " " + datetime.now().strftime("%Y-%m-%d")
 		self.camPath = "/home/pi/Pictures/" + self.camFolder
+		self.livefFullName = self.camPath + '/' + self.livefName
 
 		try:
 			os.makedirs(self.camPath)
@@ -35,14 +36,20 @@ class Camera():
 	def initLiveView(self):
 		if not self.liveView:
 			os.chdir(self.camPath)
-			mjpgCommand = ["mkfifo " + self.livefName]
-			gp(mjpgCommand)
-			liveCommand = ["--capture-movie", "--stdout> " + self.livefName]
-			gp(liveCommand)
+			try:
+                            os.mkfifo(self.livefName)
+			except:
+                            print("Live View Pipe already established...")
+                            addsleep = False
+			lv = subprocess.Popen("gphoto2 --capture-movie --stdout> " + self.livefName, shell = True)
 			self.liveView = True
+			print('Subprocess called... proceeding...')
+			if addsleep:
+                                sleep(3)
+			#return im
 			
 	def captureLiveView(self):	
-			return cv2.imread(self.livefName), self.livefName
+		return cv2.imread(self.livefName), self.livefName
 		
 	def captureFrame(self):
 		#print('Entering capture frame function...')

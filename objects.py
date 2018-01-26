@@ -11,15 +11,8 @@ class objCoord:
 	def __init__(self):
 		self.x = 0		# x position
 		self.y = 0		# y position
-		self.alt = 0	# x position
-		self.az = 0		# y position
-		self.t = 0		# time position was known (image capture time)
-		self.xz = 0		# previous x position
-		self.yz = 0		# previous y position
-		self.tz = 0		# previous time position was known (image capture time)
-		#self.ct = 0 	# time object position was last aligned with target position
 
-def findObjectPoint(imres, dyn_th, capture, fname = "temp.JPG"):
+def findObjectPoint(imres, dyn_th):
 	
 	object = objCoord()
 	
@@ -41,7 +34,7 @@ def findObjectPoint(imres, dyn_th, capture, fname = "temp.JPG"):
 
 	# If any contours / objects are found
 	if objects_cnt > 0:
-		print("Found " + str(objects_cnt) + " contours...")
+		#print("Found " + str(objects_cnt) + " contours...")
 		
 		# Use the largest area contour as the object intended to be centered
 		contour_max = contours[index_sort[0]]
@@ -58,7 +51,7 @@ def findObjectPoint(imres, dyn_th, capture, fname = "temp.JPG"):
 			object.y = int(M['m01']/M['m00'])
 		
 		# Draw a circle at the center or largest object
-		#cv2.circle(imDisplay,(object.x,object.y),5,(0,127,255),-1)
+		cv2.circle(imres,(object.x,object.y),5,(0,127,255),-1)
 
 		# Draw reference text for Objects
 		#cv2.putText(imDisplay,("Objects: "+str(objects_cnt)),(1,20),font,0.5,(0,0,0),2,cv2.LINE_AA)
@@ -67,10 +60,8 @@ def findObjectPoint(imres, dyn_th, capture, fname = "temp.JPG"):
 		#cv2.putText(imDisplay,("Threshold: "+str(dyn_th)),(1,40),font,0.5,(200,200,200),1,cv2.LINE_AA)
 		
 		if objects_cnt < 100:
-			#cv2.drawContours(imDisplay, contours, -1, (0,255,0), 3)
-		
-		if capture:
-			cv2.imwrite(fname, imres)
-	   
-		return objects_cnt, object
+			cv2.drawContours(imres, contours, -1, (0,255,0), 3)
+			#print('Drawing Contours')
+  
+		return objects_cnt, object, contours
 
